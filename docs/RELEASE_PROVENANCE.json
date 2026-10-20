@@ -3,8 +3,8 @@
   "app": {
     "name": "YappYapp",
     "bundle_identifier": "app.yappyapp.YappYapp",
-    "short_version": "0.4.0",
-    "bundle_version": "6"
+    "short_version": "0.4.1",
+    "bundle_version": "7"
   },
   "project_license": {
     "spdx": "MIT",
@@ -14,16 +14,16 @@
     {
       "identity": "fluidaudio",
       "source": "https://github.com/FluidInference/FluidAudio.git",
-      "version": "0.17.3",
-      "revision": "a6b826ce9a09028fc685a4b32a8927ec920c3188",
+      "version": "0.17.7",
+      "revision": "503b4bd1bbf7220882de39fe8ae6716aae4132da",
       "license": "Apache-2.0",
       "local_license": ".build/checkouts/FluidAudio/LICENSE"
     },
     {
       "identity": "sparkle",
       "source": "https://github.com/sparkle-project/Sparkle",
-      "version": "2.9.4",
-      "revision": "b6496a74a087257ef5e6da1c5b29a447a60f5bd7",
+      "version": "2.10.0",
+      "revision": "eef1a539a373c1f1a320624b1130fc5de7b2e100",
       "license": "MIT",
       "local_license": ".build/checkouts/Sparkle/LICENSE"
     }

@@ -28,25 +28,25 @@ let package = Package(
         .executable(name: "YappYapp", targets: ["YappYapp"])
     ],
     dependencies: [
-        // Pin to the resolved 0.17.3 minor line, the first release that loads
-        // Parakeet Ultra (`AsrModelVersion.ultra`). FluidAudio is pre-1.0, so
-        // each 0.x minor can break API; `upToNextMinor` closes the drift
-        // window on a fresh resolve. Matches Package.resolved. `traits: []`
+        // Pin to the 0.17 minor line from 0.17.7 (0.17.3 was the first release
+        // that loads Parakeet Ultra, `AsrModelVersion.ultra`). FluidAudio is
+        // pre-1.0, so each 0.x minor can break API; `upToNextMinor` closes the
+        // drift window on a fresh resolve. Matches Package.resolved. `traits: []`
         // opts out of the bundled NeMo text-normalization binary, which only
         // FluidAudio's TTS and ITN use (tools 6.2 is needed for the opt-out).
         .package(
             url: "https://github.com/FluidInference/FluidAudio.git",
-            .upToNextMinor(from: "0.17.3"),
+            .upToNextMinor(from: "0.17.7"),
             traits: []
         ),
         // Sparkle powers "Check for updates" + the opt-out auto-check. Binary
         // xcframework; package_app.sh embeds it into Contents/Frameworks and
         // signs it. The ONLY other network surface besides model downloads —
         // documented in the privacy docs and gated by the settings toggle.
-        .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.8.0"),
+        .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.10.0"),
         // Test-only dependency. The standalone package lets `swift test` run
         // with Command Line Tools, where Apple's XCTest module is unavailable.
-        .package(url: "https://github.com/swiftlang/swift-testing.git", exact: "6.3.2")
+        .package(url: "https://github.com/swiftlang/swift-testing.git", exact: "6.4.1")
     ],
     targets: [
         .executableTarget(

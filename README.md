@@ -327,10 +327,12 @@ contents, and artifact checksums. See
 evidence and remaining manual/external limits. See [ROADMAP.md](ROADMAP.md) for
 the planned distribution path.
 
-0.4.0 (build 6) is the current version: see
-[docs/RELEASE_NOTES_0.4.0.md](docs/RELEASE_NOTES_0.4.0.md), and run
+0.4.1 (build 7) is the current version: see
+[docs/RELEASE_NOTES_0.4.1.md](docs/RELEASE_NOTES_0.4.1.md). The feature
+release before it is 0.4.0
+([docs/RELEASE_NOTES_0.4.0.md](docs/RELEASE_NOTES_0.4.0.md)); run
 [docs/MANUAL_QA_0.4.0.md](docs/MANUAL_QA_0.4.0.md) with the real app before
-publishing it.
+publishing a release.
 
 For a non-destructive pet/wardrobe debugging session, enable the explicit
 environment flag before launching YappYapp:

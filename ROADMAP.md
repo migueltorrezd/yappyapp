@@ -34,6 +34,12 @@ contributor-friendly internals, and managed/offline installs.
   YappYapp; FluidAudio itself always runs offline.
 - One distinctive Brutalist design system shared by the control window, menu-bar popover, and HUD.
 
+## Shipped in 0.4.1 (build 7)
+
+A maintenance release on top of 0.4.0: Sparkle 2.10.0 for the updater,
+FluidAudio 0.17.7 for Parakeet (same pinned models), swift-testing 6.4.1 and
+current GitHub Actions versions. See `docs/RELEASE_NOTES_0.4.1.md`.
+
 ## Shipped in 0.4.0 (build 6)
 
 0.4.0 works through a 2026-10-06 production readiness review (76 findings)

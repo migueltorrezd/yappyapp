@@ -3,7 +3,7 @@
 # copies this file into the tap and into matd97-bridge/Casks/. Edit here, not
 # in the tap.
 cask "yappyapp" do
-  version "0.4.0"
+  version "0.4.1"
   sha256 "0000000000000000000000000000000000000000000000000000000000000000"
 
   url "https://github.com/migueltorrezd/yappyapp-releases/releases/download/v#{version}/YappYapp-#{version}.dmg"
