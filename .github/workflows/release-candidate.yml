@@ -169,7 +169,7 @@ jobs:
         run: ./scripts/support_report.sh > dist/support-report.md
 
       - name: Upload release-candidate artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: yappyapp-release-candidate-${{ github.run_id }}
           if-no-files-found: error
