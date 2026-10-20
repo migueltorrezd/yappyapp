@@ -1,0 +1,36 @@
+--- a/examples/cli/cli.cpp
++++ b/examples/cli/cli.cpp
+@@ -7,6 +7,7 @@
+ #include <cmath>
+ #include <algorithm>
+ #include <fstream>
++#include <iterator>
+ #include <cstdio>
+ #include <string>
+ #include <thread>
+@@ -198,6 +199,17 @@
+         else if (arg == "-dl"   || arg == "--detect-language")      { params.detect_language = true; }
+         else if (                  arg == "--prompt")               { params.prompt          = ARGV_NEXT; }
+         else if (                  arg == "--carry-initial-prompt") { params.carry_initial_prompt = true; }
++        // YappYapp: read the initial prompt from a private file so private
++        // vocabulary never appears in the process arguments that `ps` shows.
++        else if (                  arg == "--prompt-file")          {
++            const char * prompt_path = ARGV_NEXT;
++            std::ifstream prompt_file(prompt_path, std::ios::binary);
++            if (!prompt_file) {
++                fprintf(stderr, "error: cannot read prompt file\n");
++                exit(1);
++            }
++            params.prompt.assign(std::istreambuf_iterator<char>(prompt_file), std::istreambuf_iterator<char>());
++        }
+         else if (arg == "-m"    || arg == "--model")                { params.model           = ARGV_NEXT; }
+         else if (arg == "-f"    || arg == "--file")                 { params.fname_inp.emplace_back(ARGV_NEXT); }
+         else if (arg == "-oved" || arg == "--ov-e-device")          { params.openvino_encode_device = ARGV_NEXT; }
+@@ -281,6 +293,7 @@
+     fprintf(stderr, "  -dl,       --detect-language      [%-7s] exit after automatically detecting language\n",    params.detect_language ? "true" : "false");
+     fprintf(stderr, "             --prompt PROMPT        [%-7s] initial prompt (max n_text_ctx/2 tokens)\n",       params.prompt.c_str());
+     fprintf(stderr, "             --carry-initial-prompt [%-7s] always prepend initial prompt\n",                  params.carry_initial_prompt ? "true" : "false");
++    fprintf(stderr, "             --prompt-file FNAME    [%-7s] read the initial prompt from a file\n",           "");
+     fprintf(stderr, "  -m FNAME,  --model FNAME          [%-7s] model path\n",                                     params.model.c_str());
+     fprintf(stderr, "  -f FNAME,  --file FNAME           [%-7s] input audio file path\n",                          "");
+     fprintf(stderr, "  -oved D,   --ov-e-device DNAME    [%-7s] the OpenVINO device used for encode inference\n",  params.openvino_encode_device.c_str());

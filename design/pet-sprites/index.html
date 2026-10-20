@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YappYapp Pet Sprites</title>
+<style>
+  :root {
+    --bg: #14120f;
+    --panel: #1e1b16;
+    --line: #38332a;
+    --ink: #f5efe2;
+    --dim: #a89e8c;
+    --accent: #ff9a3d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+    padding: 28px 32px 80px;
+  }
+  h1 { font-size: 22px; letter-spacing: 1px; }
+  h1 span { color: var(--accent); }
+  .sub { color: var(--dim); font-size: 12px; margin-top: 6px; }
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 22px; align-items: center;
+    background: var(--panel); border: 1px solid var(--line);
+    padding: 12px 18px; margin: 20px 0 28px; border-radius: 8px;
+    font-size: 12px; position: sticky; top: 8px; z-index: 5;
+  }
+  .controls label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  input[type=range] { accent-color: var(--accent); }
+  input[type=checkbox] { accent-color: var(--accent); width: 14px; height: 14px; }
+  select {
+    background: var(--bg); color: var(--ink); border: 1px solid var(--line);
+    font: inherit; padding: 3px 6px; border-radius: 4px;
+  }
+  .grid { display: flex; flex-wrap: wrap; gap: 18px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: 14px 16px 16px;
+  }
+  .card h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 2px; }
+  .meta { color: var(--dim); font-size: 10px; margin: 4px 0 12px; }
+  .meta b { color: var(--accent); font-weight: 600; }
+  table.cells { border-collapse: collapse; }
+  table.cells th {
+    color: var(--dim); font-size: 9px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1px; padding: 0 8px 6px;
+  }
+  table.cells th.rowh { text-align: right; padding: 0 10px 0 0; }
+  table.cells td { padding: 3px 8px; text-align: center; vertical-align: bottom; }
+  .cellbox { display: inline-block; border-radius: 4px; }
+  .checker .cellbox {
+    background:
+      repeating-conic-gradient(#26221b 0% 25%, #1a1712 0% 50%) 0 0 / 14px 14px;
+  }
+  .section { margin-top: 44px; }
+  .section > h2 {
+    font-size: 15px; letter-spacing: 2px; text-transform: uppercase;
+    border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-bottom: 16px;
+  }
+  .hint { color: var(--dim); font-size: 11px; margin-bottom: 14px; }
+</style>
+</head>
+<body>
+<h1>YAPP<span>YAPP</span> — PET SPRITE SHEET</h1>
+<div class="sub">All sprites extracted directly from <code>Sources/YappYapp/PixelPet.swift</code>. Hats composite exactly like the app: hat palette, anchored at <code>hatAnchor</code>, bottom row on the anchor row.</div>
+<div class="sub">Clawd is Anthropic's Claude Code mascot, included as a fan tribute (not affiliated with or endorsed by Anthropic) and removed on request. See <code>THIRD_PARTY_NOTICES.md</code>.</div>
+
+<div class="controls">
+  <label>Pixel size <input type="range" id="px" min="3" max="9" value="5"> <span id="pxv">5</span></label>
+  <label><input type="checkbox" id="anim" checked> Animate walk (280&nbsp;ms, like the app)</label>
+  <label><input type="checkbox" id="checker"> Transparency checker</label>
+  <label>Seasonal model <select id="model"></select></label>
+</div>
+
+<div class="grid" id="pets"></div>
+
+<div class="section">
+  <h2>Seasonal hats</h2>
+  <div class="hint">Date-driven overrides that replace the equipped wardrobe item (pure function of the calendar). Shown on the model pet selected above.</div>
+  <div class="grid" id="seasonal"></div>
+</div>
+
+<div class="section">
+  <h2>Wardrobe + hat sprites (raw)</h2>
+  <div class="hint">The accessory grids themselves, rendered with the shared hat palette.</div>
+  <div class="grid" id="raw"></div>
+</div>
+
+<script>
+const DATA = {"pets": [{"name": "cat", "frames": {"walkA": ["..........##..##..", "..........#d##d#..", ".........#oooooo#.", ".#.......#o#oo#o#.", ".##......#odppdo#.", "..#d.....#owwwwo#.", "..##..####oooooo#.", "...##oood#ood#o#..", "....#oooooooooo#..", "....#wooooooowo#..", "....###########...", "....#w#....#w#....", "....##.....##....."], "walkB": ["..........##..##..", "..........#d##d#..", ".........#oooooo#.", ".#.......#o#oo#o#.", ".##......#odppdo#.", "..#d.....#owwwwo#.", "..##..####oooooo#.", "...##oood#ood#o#..", "....#oooooooooo#..", "....#wooooooowo#..", "....###########...", "...#w#.......#w#..", "...##........##..."], "sit": ["..........##..##..", "..........#d##d#..", ".........#oooooo#.", ".........#o#oo#o#.", ".#.......#odppdo#.", ".##......#owwwwo#.", "..#d..####oooooo#.", "..##.#ood#ood#o#..", "...###ooooooooo#..", "....#ooooooooo#...", "....#woo#oo#ww#...", "....###.####......"], "sleep": ["..............w...", "............w.....", "..........w.......", "..##.##...........", "..#d#d#...........", ".#ooooo########...", ".#o##o##ooooooo#..", "#oooooooooooooo#..", "#ooooodddoddooo#..", "#ooooooooooooo#d#.", ".#oooooooooood#d#.", "..###########.##.."]}, "palette": {"#": "#1a1712", "o": "#ff993d", "d": "#d66e1f", "w": "#fff7eb", "p": "#ff96a1"}, "hatAnchor": [10, 0], "hatSink": 2, "gait": "walk"}, {"name": "dog", "frames": {"walkA": [".........########.", ".........#oooooo#.", "........##o#oo#o#.", "........#e#oooooo#", "........#e#owwww##", ".........##ow#ww#.", "......####oooooo#.", ".#...#oooooooo#...", ".##.#orrrrrrrr#...", "..###oooeeoooooo#.", "....###########...", "....#o#....#o#....", "....##.....##....."], "walkB": [".........########.", ".........#oooooo#.", "........##o#oo#o#.", "........#e#oooooo#", "........#e#owwww##", ".........##ow#wp#.", "......####ooooop#.", ".#...#oooooooo#...", ".##.#orrrrrrrr#...", "..###oooeeoooooo#.", "....###########...", "...#o#.......#o#..", "...##........##..."], "sit": [".........########.", ".........#oooooo#.", "........##o#oo#o#.", "........#e#oooooo#", ".#......#e#owwww##", ".##......##ow#ww#.", "..#...####oooooo#.", "..##.#oooooooo#...", "...###orrrrrrr#...", "....#oooeeoooo#...", "....#oo#ooo#oo#...", "....###..####....."], "sleep": ["..............w...", "............w.....", "..........w.......", "..................", "...############...", "..##eeeooooooo##..", ".#oo#eeoooooooo#..", ".#o##o#oooooooo#..", "#owwooooooooooo#..", "#ww#oooeeoooooo#..", ".###############.."]}, "palette": {"#": "#1a1712", "o": "#bd8c59", "e": "#6e4a2e", "w": "#fff7eb", "p": "#ff7882", "r": "#e63b33"}, "hatAnchor": [10, 0], "hatSink": 0, "gait": "walk"}, {"name": "ghost", "frames": {"walkA": ["................", ".....######.....", "....#oooooo#....", "...#oooooooo#...", "...#o#oo#ooo#...", "...#owoowooo#...", "...#oooooooo#...", "...#oooooooo#...", "...#oooooooo#...", "...#o#oo#oo#....", "....#..##..#...."], "walkB": [".....######.....", "....#oooooo#....", "...#oooooooo#...", "...#o#oo#ooo#...", "...#owoowooo#...", "...#oooooooo#...", "...#oooooooo#...", "...#oooooooo#...", "...#o#oo#oo#....", "....#..##..#...."], "sit": ["................", ".....######.....", "....#oooooo#....", "...#oooooooo#...", "...#o#oo#ooo#...", "...#owoowooo#...", "...#oooooooo#...", "...#oooooooo#...", "...#oooooooo#...", "...#o#oo#oo#....", "....#..##..#...."], "sleep": ["................", ".....######..w..", "....#oooooo#w...", "...#oooooooo#...", "...#o##o##oo#...", "...#oooooooo#...", "...#oooooooo#...", "...#oooooooo#...", "...#oooooooo#...", "...#o#oo#oo#....", "....#..##..#...."]}, "palette": {"#": "#1a1712", "o": "#f5f0ff", "w": "#5c5ca3"}, "hatAnchor": [5, 1], "hatSink": 0, "gait": "float"}, {"name": "penguin", "frames": {"walkA": ["....#####....", "...#kkkkk#...", "..#kk#kkkk#..", "..#kkkkkkk#bb", "..#kkwwwkk#b.", "..#kwwwwwk#..", "..#kwwwwwk#..", ".##kwwwwwk#..", ".#k#wwwwwk#..", "..#kwwwwwk#..", "..#kkwwwkk#..", "...#######...", "...bb#.#bb..."], "walkB": ["....#####....", "...#kkkkk#...", "..#kk#kkkk#..", "..#kkkkkkk#bb", "..#kkwwwkk#b.", "..#kwwwwwk#..", "..#kwwwwwk#..", "..#kwwwwwk##.", "..#kwwwwwk#k#", "..#kwwwwwk#..", "..#kkwwwkk#..", "...#######...", "....bb#bb...."], "sit": ["....#####....", "...#kkkkk#...", "..#kk#kkkk#..", "..#kkkkkkk#bb", "..#kkwwwkk#b.", "..#kwwwwwk#..", "..#kwwwwwk#..", "..#kwwwwwk#..", "..#kwwwwwk#..", "..#kwwwwwk#..", "..#kkwwwkk#..", "...#######...", "...bb...bb..."], "sleep": [".............", "...........w.", ".........w...", "....#####....", "...#kkkkk#...", "..#kkkkkkk#..", "..#kk##kkk#..", "..#kbbkkkk#..", "..#kwbwwwk#..", "..#kwwwwwk#..", "..#kwwwwwk#..", "..#kwwwwwk#..", "..#kkwwwkk#..", "...#######...", "...bb...bb..."]}, "palette": {"#": "#1a1712", "k": "#2e303d", "w": "#faf7f0", "b": "#ffa129"}, "hatAnchor": [4, 0], "hatSink": 0, "gait": "walk"}, {"name": "fox", "frames": {"walkA": ["..........##...##.", "..........#o#.#o#.", "..........#oo#oo#.", ".##.......#ooooo#.", ".#w#......#o#oo#o#", ".#ww#.....#oooooo#", "..#ww#.####ooowww#", "...#o##oooooooow#.", "....#ooooooooow#..", "....#oowwwwoo##...", "....##########....", "....#d#....#d#....", "....##.....##....."], "walkB": ["..........##...##.", "..........#o#.#o#.", "..........#oo#oo#.", ".##.......#ooooo#.", ".#w#......#o#oo#o#", ".#ww#.....#oooooo#", "..#ww#.####ooowww#", "...#o##oooooooow#.", "....#ooooooooow#..", "....#oowwwwoo##...", "....##########....", "...#d#.......#d#..", "...##........##..."], "sit": ["..........##...##.", "..........#o#.#o#.", "..........#oo#oo#.", "..........#ooooo#.", ".##.......#o#oo#o#", ".#w#......#oooooo#", "..#w#..###ooowww#.", "..#wo##ooooooow#..", "...##oooooooow#...", "....#oowwwwoo#....", "....#d#ww##dd#....", "....##...##......."], "sleep": ["..............w...", "............w.....", "..........w.......", "..##..##..........", "..#o##o#..........", ".#oooooo########..", ".#o##o##ooooooo#..", "#oooooooooooooo#..", "#ooooooooooooooo#.", "#wwwoooddddoooo#..", ".##############..."]}, "palette": {"#": "#1a1712", "o": "#f06e29", "w": "#fcf5e8", "d": "#783d1a"}, "hatAnchor": [11, 0], "hatSink": 2, "gait": "walk"}, {"name": "frog", "frames": {"walkA": ["..##......##..", ".#gg#....#gg#.", ".#g#g#..#g#g#.", ".#gggggggggg#.", "#gggggggggggg#", "#gglllllllggg#", "#glllllllllg#.", ".#gg#llll#gg#.", ".#g##g##g##g#.", "..##..##..##.."], "walkB": ["..##......##..", ".#gg#....#gg#.", ".#g#g#..#g#g#.", ".#gggggggggg#.", "#gggggggggggg#", "#gglllllllggg#", "#glllllllllgg#", ".#g.#llll#.g#.", ".#g..####..g#.", "..#g......g#..", "...##....##..."], "sit": ["..##......##..", ".#gg#....#gg#.", ".#g#g#..#g#g#.", ".#gggggggggg#.", "#gggggggggggg#", "#gglllllllggg#", "#glllllllllg#.", ".#gg#llll#gg#.", ".#g##g##g##g#.", "..##..##..##.."], "sleep": [".............w", "...........w..", "..##......##..", ".#gg#....#gg#.", ".######.######", ".#gggggggggg#.", "#gggggggggggg#", "#gglllllllggg#", ".#gggggggggg#.", "..##########.."]}, "palette": {"#": "#1a1712", "g": "#59bf45", "l": "#96db59", "w": "#fff7eb"}, "hatAnchor": [4, 0], "hatSink": 1, "gait": "hop"}, {"name": "crab", "frames": {"walkA": [".##........##.", "#rr#......#rr#", "#r#........#r#", ".#..#r##r#..#.", "..#r#r##r#r#..", ".#rrrrrrrrrr#.", "#rr#rr##rr#rr#", "#rrrrrrrrrrrr#", ".#rrrrrrrrrr#.", "..#r#.##.#r#..", "..##..##..##.."], "walkB": [".##........##.", "#rr#......#rr#", "#r#........#r#", ".#..#r##r#..#.", "..#r#r##r#r#..", ".#rrrrrrrrrr#.", "#rr#rr##rr#rr#", "#rrrrrrrrrrrr#", ".#rrrrrrrrrr#.", ".#r#..##..#r#.", ".##...##...##."], "sit": ["..............", ".#r#......#r#.", "..#..#r##r#..#", "..#r#r##r#r#..", ".#rrrrrrrrrr#.", "#rr#rr##rr#rr#", "#rrrrrrrrrrrr#", ".#rrrrrrrrrr#.", "..#r#.##.#r#..", "..##..##..##.."], "sleep": [".............w", "...........w..", "....#r##r#....", "...#rrrrrr#...", "..#rr#rr#rr#..", ".#rrrrrrrrrr#.", "#rrrrrrrrrrrr#", "#rdd#rrrr#ddr#", ".####.##.####."]}, "palette": {"#": "#1a1712", "r": "#eb4a38", "d": "#ab291f", "w": "#fff7eb"}, "hatAnchor": [5, 0], "hatSink": 3, "gait": "walk"}, {"name": "robot", "frames": {"walkA": ["......#y#.....", ".......#......", "....#######...", "...#mmmmmmm#..", "...#m#ccc#m#..", "...#m#ccc#m#..", "...#mmmmmmm#..", "....##mmm##...", "..##mmmmmmm##.", "..#mmsmmmsmm#.", "..###########.", "..#s#s#s#s#s#.", "...#########.."], "walkB": ["......#.#.....", ".......#......", "....#######...", "...#mmmmmmm#..", "...#m#ccc#m#..", "...#m#ccc#m#..", "...#mmmmmmm#..", "....##mmm##...", "..##mmmmmmm##.", "..#mmsmmmsmm#.", "..###########.", "..#s#s#s#s#s#.", "...#########.."], "sit": ["......#y#.....", ".......#......", "....#######...", "...#mmmmmmm#..", "...#m#ccc#m#..", "...#m#ccc#m#..", "...#mmmmmmm#..", "....##mmm##...", "..##mmmmmmm##.", "..#mmsmmmsmm#.", "..###########.", "..#s#s#s#s#s#.", "...#########.."], "sleep": ["..............", "...........c..", ".........c....", ".......#......", "....#######...", "...#mmmmmmm#..", "...#m##s##m#..", "...#mmmmmmm#..", "..##mmmmmmm##.", "..#mmsmmmsmm#.", "..###########.", "...#########.."]}, "palette": {"#": "#1a1712", "m": "#a1abba", "s": "#6e7887", "c": "#59dbff", "y": "#ffc729"}, "hatAnchor": [4, 2], "hatSink": 0, "gait": "walk"}, {"name": "dino", "frames": {"walkA": ["..........######..", ".........#gggggg#.", ".........#g#gggg#.", ".........#gggggg#.", ".........#gg####..", ".##......#ggg#....", ".#g##...#gggg#....", "..#gg###ggggg#....", "...#gggglllgg#....", "....#ggglllgg#....", ".....#gglllg#.....", ".....#g#..#g#.....", ".....##...##......"], "walkB": ["..........######..", ".........#gggggg#.", ".........#g#gggg#.", ".........#gggggg#.", ".........#gg####..", ".##......#ggg#....", ".#g##...#gggg#....", "..#gg###ggggg#....", "...#gggglllgg#....", "....#ggglllgg#....", ".....#gglllg#.....", "....#g#....#g#....", "....##.....##....."], "sit": ["..........######..", ".........#gggggg#.", ".........#g#gggg#.", ".........#gggggg#.", ".........#gg####..", ".##......#ggg#....", ".#g##...#gggg#....", "..#gg###ggggg#....", "...#gggglllgg#....", "....#ggglllggg#...", ".....#gglllggg#...", ".....#g##g##gg#...", ".....##..##......."], "sleep": [".............w....", "...........w......", "....##############", "...#gggggggggggg#.", "..#gg#ggg##gggg#..", ".#ggggglllgggggg#.", "..#ggggllllgggg#..", "...##############."]}, "palette": {"#": "#1a1712", "g": "#5eb56e", "l": "#a1d68c", "w": "#fff7eb"}, "hatAnchor": [10, 0], "hatSink": 0, "gait": "walk"}, {"name": "duck", "frames": {"walkA": ["....#####....", "...#yyyyy#...", "..#yy#yyyy#..", "..#yyyyyyy#bb", "..#yyyyyyy#b.", ".##yyyyyyy#..", ".#y#yyyyyy#..", "..#yyyyyyy#..", "..#yywwyyy#..", "...#######...", "...bb#.#bb..."], "walkB": ["....#####....", "...#yyyyy#...", "..#yy#yyyy#..", "..#yyyyyyy#bb", "..#yyyyyyy#b.", "..#yyyyyyy##.", "..#yyyyyyy#y#", "..#yyyyyyy#..", "..#yywwyyy#..", "...#######...", "....bb#bb...."], "sit": ["....#####....", "...#yyyyy#...", "..#yy#yyyy#..", "..#yyyyyyy#bb", "..#yyyyyyy#b.", "..#yyyyyyy#..", "..#yyyyyyy#..", "..#yyyyyyy#..", "..#yywwyyy#..", "...#######...", "...bb...bb..."], "sleep": [".............", "...........w.", ".........w...", "....#####....", "...#yyyyy#...", "..#yy##yyy#..", "..#ybbyyyy#..", "..#ywbwwyy#..", "..#yywwyyy#..", "..#yyyyyyy#..", "...#######...", "...bb...bb..."]}, "palette": {"#": "#1a1712", "y": "#ffd13d", "b": "#ff8c1f", "w": "#fcf7eb"}, "hatAnchor": [4, 0], "hatSink": 0, "gait": "walk"}, {"name": "snail", "frames": {"walkA": ["......######....", ".....#ssssss#...", "....#ss####ss#..", ".##.#ss#dd#ss#..", ".#b##s#dddd#s#..", "..#b#ss####ss#..", "..#bb#ssssss#...", ".#bbbb######....", "#bbbbbbbbbbbb#..", ".############..."], "walkB": ["......######....", ".....#ssssss#...", "....#ss####ss#..", "##..#ss#dd#ss#..", "#b##.s#dddd#s#..", ".#b#sss####ss#..", "..#bb#ssssss#...", ".#bbbb######....", "#bbbbbbbbbbbbb#.", ".#############.."], "sit": ["......######....", ".....#ssssss#...", "....#ss####ss#..", ".##.#ss#dd#ss#..", ".#b##s#dddd#s#..", "..#b#ss####ss#..", "..#bb#ssssss#...", ".#bbbb######....", "#bbbbbbbbbbbb#..", ".############..."], "sleep": [".............w..", "...........w....", "......######....", ".....#ssssss#...", "....#ss####ss#..", "....#ss#dd#ss#..", "....#s#dddd#s#..", "....#ss####ss#..", "..###ssssss#....", ".#bb#######.....", "#bbbbbbbbbbbb#..", ".############..."]}, "palette": {"#": "#1a1712", "s": "#c78c4f", "d": "#965e33", "b": "#abc778", "w": "#fff7eb"}, "hatAnchor": [6, 0], "hatSink": 0, "gait": "walk"}, {"name": "otter", "frames": {"walkA": [".............###...", "............#ooo##.", "............#o#oo#.", "............#oolll#", "....###.....#ooo##.", "..##ooo####ooooo#..", ".#oo#ooooooooooo#..", "#oo#olllllllloo#...", ".##.#oooooooooo#...", "....#o#oo##oo#o#...", "....##.##..##.##..."], "walkB": [".............###...", "............#ooo##.", "............#o#oo#.", "............#oolll#", "....###.....#ooo##.", "..##ooo####ooooo#..", ".#oo#ooooooooooo#..", "#oo#olllllllloo#...", ".##.#oooooooooo#...", "...#o#oo#..#oo#o#..", "...##.##....##.##.."], "sit": [".............###...", "............#ooo##.", "............#o#oo#.", "............#oolll#", "....###.....#ooo##.", "..##ooo####ooooo#..", ".#oo#ooooooooooo#..", "#oo#olllllllloo#...", ".##.#oooooooooo#...", "....#o#oo##oo#o#...", "....##.##..##.##..."], "sleep": ["..............w....", "............w......", ".....#########.....", "...##lllllllll##...", "..#lll#ll#ll#lll#..", ".#oll#oo##oo#llo#..", ".#oolllllllllloo#..", "#oo#ollllllllo#oo#.", ".#o##oooooooo##o#..", "..##############..."]}, "palette": {"#": "#1a1712", "o": "#8c5e3d", "l": "#ccab7d", "w": "#fff7eb"}, "hatAnchor": [12, 0], "hatSink": 0, "gait": "walk"}, {"name": "dragon", "frames": {"walkA": [".......#..........", "......##...##..##.", ".....#d#...#d##d#.", "....#dd#..#rrrrrr#", "...#ddd#..#r#rrrr#", "..#dddd###rrrrrr##", ".#..#ddrrrrrrrr#y#", "#y#..#rrrrrrrr##..", ".#y##rryyyyyrr#...", "..#y#rryyyyyr#....", "....#rrrrrrr#.....", ".....#r#..#r#.....", "......#....#......"], "walkB": ["...........##..##.", "...........#d##d#.", "..........#rrrrrr#", "..........#r#rrrr#", ".....#####rrrrrr##", "....#dddddrrrrr#y#", ".#..#ddrrrrrrrr##.", "#y#..#rrrrrrrr#...", ".#y##rryyyyyrr#...", "..#y#rryyyyyr#....", "....#rrrrrrr#.....", "....#r#....#r#....", ".....#......#....."], "sit": [".......#..........", "......##...##..##.", ".....#d#...#d##d#.", "....#dd#..#rrrrrr#", "...#ddd#..#r#rrrr#", "..#dddd###rrrrrr##", ".#..#ddrrrrrrrr#y#", "#y#..#rrrrrrrr##..", ".#y##rryyyyyrr#...", "..#y#rryyyyyr#....", "....#rrrrrrr#.....", ".....#r#..#r#.....", "......#....#......"], "sleep": [".............w....", "...........w......", "......##..##......", "......#d##d#......", "....##rrrrrr###...", "...#rrr##rrrrrr#..", "..#rrrrrrrrrrrrr#.", ".#rryyyyyyyrrrdd#.", "..#ryyyyyyyrrr##..", "...#############.."]}, "palette": {"#": "#1a1712", "r": "#e64f3d", "d": "#ab2924", "y": "#ffc74f", "w": "#fff7eb"}, "hatAnchor": [11, 1], "hatSink": 1, "gait": "float"}, {"name": "unicorn", "frames": {"walkA": ["...............#y..", "..............#y#..", "...........####y#..", "..........#pppww#..", ".........#ppw#ww##.", ".#p......#ppwwwww#.", ".#pp..####ppwww##..", "..#pp#wwwwwwww#....", "...#wwwwwwwwww#....", "...#wwwwwwwwww#....", "....##########.....", "....#w#....#w#.....", "....##.....##......"], "walkB": ["...............#y..", "..............#y#..", "...........####y#..", "..........#pppww#..", ".........#ppw#ww##.", ".#p......#ppwwwww#.", ".#pp..####ppwww##..", "..#pp#wwwwwwww#....", "...#wwwwwwwwww#....", "...#wwwwwwwwww#....", "....##########.....", "...#w#......#w#....", "...##.......##....."], "sit": ["...............#y..", "..............#y#..", "...........####y#..", "..........#pppww#..", ".........#ppw#ww##.", ".#p......#ppwwwww#.", ".#pp..####ppwww##..", "..#pp#wwwwwwww#....", "...#wwwwwwwwwww#...", "....#wwwwwwwww#....", "....#w#ww#ww#w#....", "....##..##...##...."], "sleep": ["..............w....", "............w......", "......#y...........", ".....#y#...........", "....#y####.........", "....#pp#ww##.......", "....#pppww#w#......", "...##pp##www#......", "..#wwwwwwwwwww##...", ".#pwwwwwwwwwwwww#..", ".#ppwwwwwwwwwwww#..", "..###############.."]}, "palette": {"#": "#1a1712", "w": "#faf7f5", "p": "#ff82b5", "y": "#ffc73d", "g": "#dbd6e3"}, "hatAnchor": [11, 2], "hatSink": 0, "gait": "walk"}, {"name": "clawd", "frames": {"walkA": ["..#############..", ".#ccccccccccccc#.", ".#ccccccccccccc#.", ".#cc##ccccc##cc#.", "#ccc##ccccc##ccc#", "#ccccccccccccccc#", ".#ccccccccccccc#.", ".#ccccccccccccc#.", ".#ccccccccccccc#.", ".#cc#cc###cc#cc#.", ".#cc#cc#.#cc#cc#.", "..##.##...##.##.."], "walkB": ["..#############..", ".#ccccccccccccc#.", ".#ccccccccccccc#.", ".#cc##ccccc##cc#.", "#ccc##ccccc##ccc#", "#ccccccccccccccc#", ".#ccccccccccccc#.", ".#ccccccccccccc#.", ".#ccccccccccccc#.", ".#cc#cc###cc#cc#.", ".#cc###...###cc#.", "..##.........##.."], "sit": ["..#############..", ".#ccccccccccccc#.", ".#ccccccccccccc#.", ".#cc##ccccc##cc#.", "#ccc##ccccc##ccc#", "#ccccccccccccccc#", ".#ccccccccccccc#.", ".#ccccccccccccc#.", ".#ccccccccccccc#.", ".#cc#cc###cc#cc#.", "..##.##...##.##.."], "sleep": ["...............w.", "..............w..", "..#############..", ".#ccccccccccccc#.", ".#ccccccccccccc#.", ".#ccccccccccccc#.", "#ccc##ccccc##ccc#", "#ccccccccccccccc#", ".#ccccccccccccc#.", ".#ccccccccccccc#.", ".#ccccccccccccc#.", ".#cc#cc###cc#cc#.", "..##.##...##.##.."]}, "palette": {"#": "#1a1712", "c": "#d97757", "w": "#fff7eb"}, "hatAnchor": [5, 0], "hatSink": 0, "gait": "walk"}, {"name": "egg", "frames": {"walkA": ["...####...", "..#wwww#..", ".#wwwwww#.", ".#wowwow#.", "#wwwwwwww#", "#wwwowwww#", "#wwwwwoww#", ".#wwwwww#.", "..######.."], "walkB": ["..####....", ".#wwww#...", ".#wwwwww#.", ".#wowwow#.", "#wwwwwwww#", "#wwwowwww#", "#wwwwwoww#", ".#wwwwww#.", "..######.."], "sit": ["...####...", "..#wwww#..", ".#wwwwww#.", ".#wowwow#.", "#wwwwwwww#", "#wwwowwww#", "#wwwwwoww#", ".#wwwwww#.", "..######.."], "sleep": ["...####...", "..#wwww#..", ".#wwwwww#.", ".#wowwow#.", "#wwwwwwww#", "#wwwowwww#", "#wwwwwoww#", ".#wwwwww#.", "..######.."]}, "palette": {"#": "#1a1712", "w": "#faf2e0", "o": "#dbc296"}, "hatAnchor": [3, 0], "hatSink": 0, "gait": "walk"}], "unlocks": {"cat": "Starter", "dog": "Starter", "crab": "Starter", "ghost": "500 lifetime words", "fox": "25 dictations", "penguin": "3 day best streak", "robot": "1,500 lifetime words", "frog": "3 daily quests", "duck": "100 dictations", "dino": "2,500 lifetime words", "snail": "5 day best streak", "otter": "6 daily quests", "dragon": "10,000 lifetime words", "unicorn": "Any pet at level 10", "clawd": "5,000 lifetime words", "egg": "Hatches into every pet"}, "hatColors": {"#": "#1a1712", "r": "#e63b33", "y": "#ffc729", "w": "#fff7eb", "b": "#4582ff", "p": "#ff69b5", "o": "#ff8221", "g": "#52a84c"}, "wardrobe": [{"name": "Beanie", "grid": [".bbbbb.", "bbbbbbb", "b.b.b.b"], "unlock": "Level 3", "floats": false}, {"name": "Party hat", "grid": ["...#...", "..#y#..", ".#pp#..", "#pppp#."], "unlock": "Level 6", "floats": false}, {"name": "Halo", "grid": [".yyyy.", "y....y", ".yyyy."], "unlock": "Level 10", "floats": true}], "seasonal": [{"name": "Santa hat", "grid": [".....ww", "..rrrww", ".rrrrr.", "wwwwww."], "window": "All of December", "floats": false}, {"name": "Pumpkin", "grid": ["..g..", ".ooo.", "ooooo", "o#o#o", ".ooo."], "window": "Oct 24-31", "floats": false}, {"name": "New Year popper", "grid": ["y.r.b", ".ryb.", "..#..", ".##..", "##..."], "window": "Jan 1-2", "floats": false}, {"name": "Valentine heart", "grid": [".p.p.", "ppppp", ".ppp.", "..p.."], "window": "Feb 10-18", "floats": true}, {"name": "Summer shades", "grid": ["##g##", "#w#w#"], "window": "July + August", "floats": false}, {"name": "Crown", "grid": ["y.y.y", "yyyyy"], "window": "Unused in code (reserved)", "floats": false}]};
+
+const state = { px: 5, anim: true, flip: false, model: "cat" };
+const walkCells = [];   // {canvas, pet, hat, hatName}
+const staticCells = []; // {canvas, pet, frame, hat}
+const rawCells = [];    // {canvas, grid, palette, label}
+
+function firstSolid(grid) {
+  for (let i = 0; i < grid.length; i++) {
+    if ([...grid[i]].some(c => c !== ".")) return i;
+  }
+  return 0;
+}
+
+// Frames can bake vertical motion into the grid (ghost walkB bobs up a row,
+// crab sits a row lower); the hat rides along, exactly like the app.
+function hatFrameShift(pet, frame) {
+  return firstSolid(pet.frames[frame]) - firstSolid(pet.frames.walkA);
+}
+
+function drawGrid(ctx, grid, palette, px, ox, oy) {
+  for (let r = 0; r < grid.length; r++) {
+    const row = grid[r];
+    for (let c = 0; c < row.length; c++) {
+      const ch = row[c];
+      if (ch === ".") continue;
+      const color = palette[ch];
+      if (!color) continue;
+      ctx.fillStyle = color;
+      ctx.fillRect(ox + c * px, oy + r * px, px, px);
+    }
+  }
+}
+
+// Uniform cell metrics per pet so all variants align: headroom for the
+// tallest hat, width covering any hat overhang.
+function cellDims(pet, hats, px) {
+  const gw = pet.frames.walkA[0].length;
+  const gh = Math.max(...Object.values(pet.frames).map(f => f.length));
+  const [ac, ar] = pet.hatAnchor;
+  const sink = pet.hatSink || 0;
+  // Hats can ride above the walkA position on frames that bob upward.
+  const maxRise = Math.max(0, ...["walkA", "walkB", "sit"].map(f => -hatFrameShift(pet, f)));
+  let head = 0, width = gw;
+  for (const h of hats) {
+    if (!h || !h.grid) continue;
+    const drop = h.floats ? 0 : sink;
+    head = Math.max(head, h.grid.length - 1 - ar - drop + maxRise);
+    width = Math.max(width, ac + h.grid[0].length);
+  }
+  return { w: width * px, h: (gh + head) * px, headRows: head, gh };
+}
+
+function makeCanvas(dims) {
+  const c = document.createElement("canvas");
+  c._dims = dims;
+  return c;
+}
+
+function buildPets() {
+  const hatDefs = [{ name: "No hat", grid: null, floats: false }]
+    .concat(DATA.wardrobe.map(w => ({ name: w.name, grid: w.grid, floats: w.floats })));
+  const host = document.getElementById("pets");
+
+  for (const pet of DATA.pets) {
+    const card = document.createElement("div");
+    card.className = "card";
+    const unlock = DATA.unlocks[pet.name] || "";
+    card.innerHTML = `<h2>${pet.name}</h2>
+      <div class="meta">gait <b>${pet.gait}</b> &middot; ${unlock}</div>`;
+
+    const table = document.createElement("table");
+    table.className = "cells";
+    const head = document.createElement("tr");
+    head.innerHTML = "<th></th>" + hatDefs.map(h => `<th>${h.name}</th>`).join("");
+    table.appendChild(head);
+
+    const rows = state.anim ? ["walk", "sit", "sleep"] : ["walkA", "walkB", "sit", "sleep"];
+    for (const frame of rows) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<th class="rowh">${frame}</th>`;
+      for (const h of hatDefs) {
+        const td = document.createElement("td");
+        const box = document.createElement("span");
+        box.className = "cellbox";
+        const dims = cellDims(pet, hatDefs, 1);
+        const canvas = makeCanvas(dims);
+        const cell = { canvas, pet, hat: h.grid ? h : null, frame };
+        (frame === "walk" ? walkCells : staticCells).push(cell);
+        box.appendChild(canvas);
+        td.appendChild(box);
+        tr.appendChild(td);
+      }
+      table.appendChild(tr);
+    }
+    card.appendChild(table);
+    host.appendChild(card);
+  }
+}
+
+function buildSeasonal() {
+  const host = document.getElementById("seasonal");
+  host.innerHTML = "";
+  const pet = DATA.pets.find(p => p.name === state.model);
+  for (const s of DATA.seasonal) {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `<h2>${s.name}</h2><div class="meta">${s.window}</div>`;
+    const box = document.createElement("span");
+    box.className = "cellbox";
+    const dims = cellDims(pet, [s], 1);
+    const canvas = makeCanvas(dims);
+    walkCells.push({ canvas, pet, hat: s, frame: "walk", seasonal: true });
+    box.appendChild(canvas);
+    card.appendChild(box);
+    host.appendChild(card);
+  }
+}
+
+function buildRaw() {
+  const host = document.getElementById("raw");
+  const items = DATA.wardrobe.map(w => ({ label: `${w.name} — ${w.unlock}`, grid: w.grid }))
+    .concat(DATA.seasonal.map(s => ({ label: s.name, grid: s.grid })));
+  for (const it of items) {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `<h2 style="font-size:11px">${it.label}</h2><div style="height:8px"></div>`;
+    const box = document.createElement("span");
+    box.className = "cellbox";
+    const canvas = document.createElement("canvas");
+    rawCells.push({ canvas, grid: it.grid });
+    box.appendChild(canvas);
+    card.appendChild(box);
+    host.appendChild(card);
+  }
+}
+
+function relayout() {
+  const px = state.px;
+  for (const cell of walkCells.concat(staticCells)) {
+    const d = cell.canvas._dims;
+    cell.canvas.width = d.w * px;
+    cell.canvas.height = d.h * px;
+    cell.canvas._live = { headRows: d.headRows, gh: d.gh };
+    renderCell2(cell);
+  }
+  for (const rc of rawCells) {
+    const rpx = px * 2;
+    rc.canvas.width = rc.grid[0].length * rpx;
+    rc.canvas.height = rc.grid.length * rpx;
+    const ctx = rc.canvas.getContext("2d");
+    drawGrid(ctx, rc.grid, DATA.hatColors, rpx, 0, 0);
+  }
+}
+
+// dims are stored in grid units (px=1); render using live px.
+function renderCell2(cell) {
+  const { canvas, pet, hat } = cell;
+  const px = state.px;
+  const d = canvas._dims;
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  let frame = cell.frame;
+  if (frame === "walk") frame = state.flip ? "walkB" : "walkA";
+  const grid = pet.frames[frame];
+
+  const bob = (cell.frame === "walk" && pet.gait === "float" && state.anim && state.flip) ? -1 : 0;
+  // Shorter frames (sit/sleep) are bottom-aligned in the cell; the hat is
+  // anchored to the frame's top-left exactly like the app's ZStack, so it
+  // must shift down by the same amount.
+  const frameShift = d.gh - grid.length;
+  const oy = (d.headRows + frameShift + bob) * px;
+  drawGrid(ctx, grid, pet.palette, px, 0, oy);
+
+  if (hat && frame !== "sleep") {
+    const [ac, ar] = pet.hatAnchor;
+    const drop = hat.floats ? 0 : (pet.hatSink || 0);
+    const ride = hatFrameShift(pet, frame);
+    drawGrid(ctx, hat.grid, DATA.hatColors, px, ac * px,
+      (d.headRows + frameShift + ar - hat.grid.length + 1 + drop + ride + bob) * px);
+  }
+}
+
+function rebuildAll() {
+  document.getElementById("pets").innerHTML = "";
+  walkCells.length = 0;
+  staticCells.length = 0;
+  buildPets();
+  buildSeasonal();
+  relayout();
+}
+
+// ---- wire controls ----
+const modelSel = document.getElementById("model");
+for (const p of DATA.pets) {
+  if (p.name === "egg") continue;
+  const o = document.createElement("option");
+  o.value = p.name; o.textContent = p.name;
+  modelSel.appendChild(o);
+}
+modelSel.value = state.model;
+modelSel.onchange = () => { state.model = modelSel.value; rebuildAll(); };
+
+document.getElementById("px").oninput = e => {
+  state.px = +e.target.value;
+  document.getElementById("pxv").textContent = state.px;
+  relayout();
+};
+document.getElementById("anim").onchange = e => { state.anim = e.target.checked; rebuildAll(); };
+document.getElementById("checker").onchange = e =>
+  document.body.classList.toggle("checker", e.target.checked);
+
+setInterval(() => {
+  if (!state.anim) return;
+  state.flip = !state.flip;
+  for (const cell of walkCells) renderCell2(cell);
+}, 280);
+
+buildRaw();
+rebuildAll();
+</script>
+</body>
+</html>

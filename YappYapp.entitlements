@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>com.apple.security.device.audio-input</key>
+  <true/>
+  <!-- Hardened-runtime library validation requires the embedded
+       Sparkle.framework to share the app's Team ID. The local self-signed
+       "YappYapp Dev" identity has no Team ID, so validation rejects Sparkle
+       and the app dies at dyld. This entitlement lifts that check; once the
+       app is signed with a real Developer ID (same Team ID on app and
+       framework), it can be removed. Notarization accepts it either way. -->
+  <key>com.apple.security.cs.disable-library-validation</key>
+  <true/>
+</dict>
+</plist>

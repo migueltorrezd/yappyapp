@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build, self-test, and source policies
+    runs-on: macos-26
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          sw_vers
+          swift --version
+
+      - name: Select a macOS SDK that builds SwiftUI macros
+        run: |
+          set -euo pipefail
+          source scripts/lib/swift_sdk.sh
+          yappyapp_use_buildable_sdk
+          echo "SDKROOT=$SDKROOT" >> "$GITHUB_ENV"
+          echo "Building against $SDKROOT"
+
+      - name: Cache SwiftPM build products
+        uses: actions/cache@v4
+        with:
+          path: .build
+          key: ${{ runner.os }}-swift-${{ hashFiles('Package.resolved', 'Package.swift') }}
+          restore-keys: |
+            ${{ runner.os }}-swift-
+
+      - name: Build with complete concurrency checks
+        run: swift build --disable-sandbox -Xswiftc -strict-concurrency=complete -Xswiftc -warnings-as-errors
+
+      - name: Run SwiftPM unit tests
+        run: swift test --disable-sandbox -Xswiftc -strict-concurrency=complete -Xswiftc -warnings-as-errors
+
+      - name: Run built-in self-tests
+        run: .build/debug/YappYapp --self-test
+
+      - name: Install ShellCheck
+        run: brew install shellcheck
+
+      - name: Shell checks
+        run: |
+          bash -n scripts/*.sh scripts/lib/*.sh
+          shellcheck -x scripts/*.sh scripts/lib/*.sh
+
+      - name: Source install smoke
+        run: ./scripts/source_install_smoke.sh
+
+      - name: Settings backup smoke
+        run: ./scripts/settings_backup_smoke.sh
+
+      - name: Reset app data smoke
+        run: ./scripts/reset_app_data_smoke.sh
+
+      - name: Route-change device inventory
+        run: ./scripts/route_change_test.sh --list-devices
+
+      - name: Source release policy checks
+        run: |
+          ./scripts/check_ignore_policy.sh
+          ./scripts/check_docs_links.sh
+          ./scripts/check_model_catalog_sync.sh
+          ./scripts/check_no_model_weights.sh
+          ./scripts/check_privacy_artifacts.sh
+          ./scripts/check_network_policy.sh
+          ./scripts/release_tooling_smoke.sh

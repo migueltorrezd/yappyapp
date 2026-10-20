@@ -1,0 +1,181 @@
+name: Release candidate
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: Build and verify ad-hoc candidate
+    runs-on: macos-26
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          sw_vers
+          swift --version
+          xcrun --find codesign
+          xcrun --find hdiutil
+
+      - name: Select a macOS SDK that builds SwiftUI macros
+        run: |
+          set -euo pipefail
+          source scripts/lib/swift_sdk.sh
+          yappyapp_use_buildable_sdk
+          echo "SDKROOT=$SDKROOT" >> "$GITHUB_ENV"
+          echo "Building against $SDKROOT"
+
+      - name: Install build tools
+        run: brew install cmake shellcheck
+
+      - name: Build pinned whisper.cpp runtime
+        run: |
+          set -euo pipefail
+          WHISPER_REVISION="$(
+            ruby -rjson -e '
+              manifest = JSON.parse(File.read("docs/RELEASE_PROVENANCE.json"))
+              runtime = manifest.fetch("bundled_runtimes").find { |item| item.fetch("name") == "whisper.cpp" }
+              puts runtime.fetch("revision")
+            '
+          )"
+
+          mkdir -p vendor
+          git clone https://github.com/ggml-org/whisper.cpp.git vendor/whisper.cpp
+          git -C vendor/whisper.cpp checkout "$WHISPER_REVISION"
+
+          cmake -S vendor/whisper.cpp -B vendor/whisper.cpp/build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_SHARED_LIBS=OFF \
+            -DGGML_METAL=ON \
+            -DGGML_METAL_EMBED_LIBRARY=ON
+          cmake --build vendor/whisper.cpp/build \
+            --config Release \
+            -j "$(sysctl -n hw.ncpu)" \
+            --target whisper-cli whisper-server
+
+          test -x vendor/whisper.cpp/build/bin/whisper-cli
+          test -x vendor/whisper.cpp/build/bin/whisper-server
+
+      - name: Build pinned llama.cpp cleanup runtime
+        run: |
+          set -euo pipefail
+          ./scripts/bootstrap_llama_cpp.sh
+          test -x vendor/llama.cpp/build/bin/llama-completion
+
+      - name: Record candidate runtime provenance
+        run: ./scripts/update_runtime_provenance.sh
+
+      - name: Shell checks
+        run: |
+          bash -n scripts/*.sh scripts/lib/*.sh
+          shellcheck -x scripts/*.sh scripts/lib/*.sh
+
+      - name: Build and run built-in self-tests
+        run: |
+          swift build --disable-sandbox -Xswiftc -strict-concurrency=complete -Xswiftc -warnings-as-errors
+          swift test --disable-sandbox -Xswiftc -strict-concurrency=complete -Xswiftc -warnings-as-errors
+          .build/debug/YappYapp --self-test
+
+      - name: Clean install smoke
+        run: ./scripts/clean_install_smoke.sh
+
+      - name: Source install smoke
+        run: ./scripts/source_install_smoke.sh
+
+      - name: Offline managed-config smoke
+        run: ./scripts/offline_config_smoke.sh
+
+      - name: Settings backup smoke
+        run: ./scripts/settings_backup_smoke.sh
+
+      - name: Reset app data smoke
+        run: ./scripts/reset_app_data_smoke.sh
+
+      - name: Route-change device inventory
+        run: ./scripts/route_change_test.sh --list-devices
+
+      - name: Package app
+        run: SIGN_IDENTITY=- ./scripts/package_app.sh
+
+      - name: Release binary surface
+        run: ./scripts/check_release_binary_surface.sh
+
+      - name: Packaged launch smoke
+        run: ./scripts/launch_smoke.sh
+
+      - name: LaunchServices smoke
+        run: ./scripts/launchservices_smoke.sh
+
+      - name: Packaged notices
+        run: ./scripts/check_packaged_notices.sh
+
+      - name: Ignore policy
+        run: ./scripts/check_ignore_policy.sh
+
+      - name: Documentation links
+        run: ./scripts/check_docs_links.sh
+
+      - name: Model catalog sync
+        run: ./scripts/check_model_catalog_sync.sh
+
+      - name: Model weight policy
+        run: ./scripts/check_no_model_weights.sh
+
+      - name: Privacy artifact policy
+        run: ./scripts/check_privacy_artifacts.sh
+
+      - name: Network policy
+        run: ./scripts/check_network_policy.sh
+
+      - name: Release metadata and bundle identity
+        run: |
+          set -euo pipefail
+          for required in LICENSE ROADMAP.md THIRD_PARTY_NOTICES.md docs/INSTALL.md docs/MODEL_DISTRIBUTION.md docs/RELEASE_CHECKLIST.md docs/RELEASE_PROVENANCE.json; do
+            test -s "$required"
+          done
+          test "$(plutil -extract CFBundleIdentifier raw dist/YappYapp.app/Contents/Info.plist)" = "app.yappyapp.YappYapp"
+          test "$(plutil -extract CFBundleName raw dist/YappYapp.app/Contents/Info.plist)" = "YappYapp"
+
+      - name: Release provenance
+        run: ./scripts/check_provenance.sh
+
+      - name: Live model-card metadata
+        run: ./scripts/check_hf_model_metadata.sh
+
+      - name: Code signature verification
+        run: codesign --verify --deep --strict --verbose=2 dist/YappYapp.app
+
+      - name: Doctor
+        run: ./scripts/doctor.sh
+
+      - name: Create DMG and checksums
+        run: |
+          ./scripts/create_dmg.sh
+          ./scripts/dmg_smoke.sh
+          ./scripts/write_checksums.sh
+          ./scripts/release_artifacts_smoke.sh
+
+      - name: Release tooling smoke
+        run: ./scripts/release_tooling_smoke.sh
+
+      - name: Generate manual QA report template
+        run: ./scripts/manual_qa_report.sh > dist/manual-qa-report.md
+
+      - name: Generate support report
+        run: ./scripts/support_report.sh > dist/support-report.md
+
+      - name: Upload release-candidate artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: yappyapp-release-candidate-${{ github.run_id }}
+          if-no-files-found: error
+          path: |
+            dist/YappYapp.dmg
+            dist/YappYapp.app.zip
+            dist/checksums.txt
+            dist/manual-qa-report.md
+            dist/support-report.md

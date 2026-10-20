@@ -1,0 +1,2 @@
+/* Shown by macOS when YappYapp first asks for the microphone. */
+"NSMicrophoneUsageDescription" = "YappYapp records your voice locally so it can transcribe dictation on this Mac.";

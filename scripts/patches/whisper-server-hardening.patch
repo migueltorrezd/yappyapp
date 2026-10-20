@@ -1,0 +1,103 @@
+--- a/examples/server/server.cpp
++++ b/examples/server/server.cpp
+@@ -726,10 +726,21 @@
+     state.store(SERVER_STATE_READY);
+ 
+ 
+-    svr->set_default_headers({{"Server", "whisper.cpp"},
+-                             {"Access-Control-Allow-Origin", "*"},
+-                             {"Access-Control-Allow-Headers", "content-type, authorization"}});
++    // YappYapp: no CORS headers. Only the app talks to this server, and a
++    // browser page must never be able to read a transcript from it.
++    svr->set_default_headers({{"Server", "whisper.cpp"}});
+ 
++    // YappYapp: browsers always send Origin on cross-site requests. The app
++    // never does, so any request carrying one is refused before routing.
++    svr->set_pre_routing_handler([](const Request &req, Response &res) {
++        if (req.has_header("Origin")) {
++            res.status = 403;
++            res.set_content("Forbidden", "text/plain");
++            return Server::HandlerResponse::Handled;
++        }
++        return Server::HandlerResponse::Unhandled;
++    });
++
+     std::string const default_content = R"(
+     <html>
+     <head>
+@@ -770,13 +781,6 @@
+     -F response_format="json"
+         </pre>
+ 
+-        <h2>/load</h2>
+-        <pre>
+-    curl 127.0.0.1:)" + std::to_string(sparams.port) + R"(/load \
+-    -H "Content-Type: multipart/form-data" \
+-    -F model="&lt;path-to-model-file&gt;"
+-        </pre>
+-
+         <div>
+             <h2>Try it out</h2>
+             <form action=")" + sparams.request_path + sparams.inference_path + R"(" method="POST" enctype="multipart/form-data">
+@@ -1160,49 +1164,9 @@
+                             "application/json");
+         }
+     });
+-    svr->Post(sparams.request_path + "/load", [&](const Request &req, Response &res){
+-        std::lock_guard<std::mutex> lock(whisper_mutex);
+-        state.store(SERVER_STATE_LOADING_MODEL);
+-        if (!req.has_file("model"))
+-        {
+-            fprintf(stderr, "error: no 'model' field in the request\n");
+-            const std::string error_resp = "{\"error\":\"no 'model' field in the request\"}";
+-            res.status = 400;
+-            res.set_content(error_resp, "application/json");
+-            return;
+-        }
+-        std::string model = req.get_file_value("model").content;
+-        if (!is_file_exist(model.c_str()))
+-        {
+-            fprintf(stderr, "error: 'model': %s not found!\n", model.c_str());
+-            const std::string error_resp = "{\"error\":\"model not found!\"}";
+-            res.status = 400;
+-            res.set_content(error_resp, "application/json");
+-            return;
+-        }
++    // YappYapp: no /load route. The model is fixed at launch, and a request
++    // that swapped it (or failed to) could kill the warm server.
+ 
+-        // clean up
+-        whisper_free(ctx);
+-
+-        // whisper init
+-        ctx = whisper_init_from_file_with_params(model.c_str(), cparams);
+-
+-        // TODO perhaps load prior model here instead of exit
+-        if (ctx == nullptr) {
+-            fprintf(stderr, "error: model init  failed, no model loaded must exit\n");
+-            exit(1);
+-        }
+-
+-        // initialize openvino encoder. this has no effect on whisper.cpp builds that don't have OpenVINO configured
+-        whisper_ctx_init_openvino_encoder(ctx, nullptr, params.openvino_encode_device.c_str(), nullptr);
+-
+-        state.store(SERVER_STATE_READY);
+-        const std::string success = "Load was successful!";
+-        res.set_content(success, "application/text");
+-
+-        // check if the model is in the file system
+-    });
+-
+     svr->Get(sparams.request_path + "/health", [&](const Request &, Response &res){
+         server_state current_state = state.load();
+         if (current_state == SERVER_STATE_READY) {
+@@ -1248,8 +1212,7 @@
+         return 1;
+     }
+ 
+-    // Set the base directory for serving static files
+-    svr->set_base_dir(sparams.public_path);
++    // YappYapp: no static file serving. The app only needs the API routes.
+ 
+     // to make it ctrl+clickable:
+     printf("\nwhisper server listening at http://%s:%d\n\n", sparams.hostname.c_str(), sparams.port);

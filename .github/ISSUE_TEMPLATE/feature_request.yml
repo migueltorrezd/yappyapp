@@ -1,0 +1,40 @@
+name: Feature request
+description: Suggest an improvement for YappYapp
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: "Please skim ROADMAP.md first so proposals line up with the current local-first release plan."
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user problem does this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What should YappYapp do?
+    validations:
+      required: true
+  - type: dropdown
+    id: privacy
+    attributes:
+      label: Privacy or permission impact
+      options:
+        - No new data or permissions
+        - Uses microphone differently
+        - Uses clipboard differently
+        - Uses network differently
+        - Changes Accessibility behavior
+        - Unsure
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered

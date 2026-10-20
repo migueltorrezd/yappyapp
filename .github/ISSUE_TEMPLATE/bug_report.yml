@@ -1,0 +1,90 @@
+name: Bug report
+description: Report a reproducible YappYapp issue
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this. Please do not attach private audio or transcripts.
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: YappYapp version, commit SHA, or build date.
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS and hardware
+      description: "Example: macOS 14.6 on M2 Pro."
+    validations:
+      required: true
+  - type: dropdown
+    id: run_mode
+    attributes:
+      label: Run mode
+      options:
+        - Downloaded app (DMG or Homebrew)
+        - dist/YappYapp.app
+        - swift run YappYapp
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Recording
+        - Transcription
+        - Paste / Accessibility
+        - Model download
+        - Packaging / signing
+        - UI
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: support_report
+    attributes:
+      label: Support report
+      description: |
+        In the app, open SETUP, scroll to SUPPORT and click COPY SUPPORT REPORT, then paste it here. From a source checkout, paste the output of ./scripts/support_report.sh instead. Review it for private details first. It never includes audio, transcripts or glossary entries.
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: crashes
+    attributes:
+      label: Recent crashes
+      description: If the app crashed, the support report lists the crash files under Recent Crash Reports. Click REVEAL next to one in SETUP, SUPPORT and attach it only if a maintainer asks.
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open ...
+        2. Press ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional context
+      description: Include model name, target app, and Accessibility state if relevant.

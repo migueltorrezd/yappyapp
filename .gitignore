@@ -1,0 +1,60 @@
+# Swift and Xcode build state
+.build/
+.swiftpm/
+DerivedData/
+*.xcuserdata/
+
+# Local release outputs and vendored runtime builds
+dist/
+vendor/
+*.app/
+*.dmg
+*.app.zip
+
+# Local scratch space
+.tmp/
+.DS_Store
+*.swp
+*.swo
+
+# Model weights and local inference artifacts
+*.bin
+*.gguf
+*.safetensors
+*.onnx
+*.tflite
+*.pt
+*.pth
+*.ckpt
+*.mlmodel
+*.mlmodelc/
+*.mlpackage/
+*.coremlmodel
+*.nemo
+
+# Private audio/transcript/debug artifacts
+*.wav
+*.wave
+*.aif
+*.aiff
+*.caf
+*.mp3
+*.m4a
+*.flac
+*.ogg
+*transcript*.txt
+*transcript*.json
+*transcript*.csv
+server.log
+support-report*.md
+manual-qa-report*.md
+
+# Production review screenshot gallery (local only, not published)
+/audits/2026-10-06-production-review-gallery/
+/audits/2026-10-16-after-fixes-gallery/
+/audits/2026-10-16-ux-writing-gallery/
+/audits/onb2-gallery/
+/audits/*gallery*/
+/audits/2026-10-1[89]-*/gallery*/
+# Every other audit screenshot folder (before/after renders, onboarding rounds)
+/audits/**/*.png

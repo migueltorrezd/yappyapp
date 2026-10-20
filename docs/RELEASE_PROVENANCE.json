@@ -1,0 +1,359 @@
+{
+  "schema": 1,
+  "app": {
+    "name": "YappYapp",
+    "bundle_identifier": "app.yappyapp.YappYapp",
+    "short_version": "0.4.0",
+    "bundle_version": "6"
+  },
+  "project_license": {
+    "spdx": "MIT",
+    "file": "LICENSE"
+  },
+  "swift_package_dependencies": [
+    {
+      "identity": "fluidaudio",
+      "source": "https://github.com/FluidInference/FluidAudio.git",
+      "version": "0.17.3",
+      "revision": "a6b826ce9a09028fc685a4b32a8927ec920c3188",
+      "license": "Apache-2.0",
+      "local_license": ".build/checkouts/FluidAudio/LICENSE"
+    },
+    {
+      "identity": "sparkle",
+      "source": "https://github.com/sparkle-project/Sparkle",
+      "version": "2.9.4",
+      "revision": "b6496a74a087257ef5e6da1c5b29a447a60f5bd7",
+      "license": "MIT",
+      "local_license": ".build/checkouts/Sparkle/LICENSE"
+    }
+  ],
+  "bundled_runtimes": [
+    {
+      "name": "whisper.cpp",
+      "source": "https://github.com/ggml-org/whisper.cpp",
+      "revision": "7695a5331230c585f5ce92291c4256973985ae5a",
+      "license": "MIT",
+      "local_license": "vendor/whisper.cpp/LICENSE",
+      "artifacts": [
+        {
+          "path": "vendor/whisper.cpp/build/bin/whisper-cli",
+          "sha256": "520a8368eb50a8ac42cc0f961753a942568e3d71da6fbfe937098820d1eb70bf"
+        },
+        {
+          "path": "vendor/whisper.cpp/build/bin/whisper-server",
+          "sha256": "7c0feeaf921f08a1cbd5e0460bb0e0baf39b07e7b53bd89e6440408494dca01e"
+        }
+      ]
+    },
+    {
+      "name": "llama.cpp",
+      "source": "https://github.com/ggml-org/llama.cpp",
+      "tag": "v0.6.0",
+      "revision": "d81235049384534c167caea52b85a694f6103d14",
+      "license": "MIT",
+      "local_license": "vendor/llama.cpp/LICENSE",
+      "artifacts": [
+        {
+          "path": "vendor/llama.cpp/build/bin/llama-completion",
+          "sha256": "d7afc82925ff71d9c3d6a882763a99afb2a716d8ea29d16d3666de4471edd77b"
+        },
+        {
+          "path": "vendor/llama.cpp/build/bin/llama-server",
+          "sha256": "4dbe2e6c3416ad082f9a114c175b806a3638a6d9a954ca767948807b737a49de"
+        },
+        {
+          "path": "vendor/llama.cpp/build/bin/llama-mtmd-cli",
+          "sha256": "115feedcdfd5b435ce1d0c6bb93b250dd51600d794e7224ca200d04626ec1c7d"
+        }
+      ]
+    }
+  ],
+  "model_sources": {
+    "whisper": {
+      "source": "https://huggingface.co/ggerganov/whisper.cpp",
+      "revision": "5359861c739e955e79d9a303bcbc70fb988958b1",
+      "license_policy": "Verify upstream model-card license metadata before public release or model bundling.",
+      "integrity": "YappYapp verifies SHA-1 values after download.",
+      "models": [
+        {
+          "id": "large-v3-turbo",
+          "filename": "ggml-large-v3-turbo.bin",
+          "sha1": "4af2b29d7ec73d781377bfd1758ca957a807e941"
+        },
+        {
+          "id": "large-v3",
+          "filename": "ggml-large-v3.bin",
+          "sha1": "ad82bf6a9043ceed055076d0fd39f5f186ff8062"
+        },
+        {
+          "id": "medium",
+          "filename": "ggml-medium.bin",
+          "sha1": "fd9727b6e1217c2f614f9b698455c4ffd82463b4"
+        },
+        {
+          "id": "small",
+          "filename": "ggml-small.bin",
+          "sha1": "55356645c2b361a969dfd0ef2c5a50d530afd8d5"
+        },
+        {
+          "id": "base",
+          "filename": "ggml-base.bin",
+          "sha1": "465707469ff3a37a2b9b8d8f89f2f99de7299dac"
+        },
+        {
+          "id": "tiny",
+          "filename": "ggml-tiny.bin",
+          "sha1": "bd577a113a864445d4c299885e0cb97d4ba92b5f"
+        },
+        {
+          "id": "medium-en",
+          "filename": "ggml-medium.en.bin",
+          "sha1": "8c30f0e44ce9560643ebd10bbe50cd20eafd3723"
+        },
+        {
+          "id": "small-en",
+          "filename": "ggml-small.en.bin",
+          "sha1": "db8a495a91d927739e50b3fc1cc4c6b8f6c2d022"
+        },
+        {
+          "id": "base-en",
+          "filename": "ggml-base.en.bin",
+          "sha1": "137c40403d78fd54d454da0f9bd998f78703390c"
+        },
+        {
+          "id": "tiny-en",
+          "filename": "ggml-tiny.en.bin",
+          "sha1": "c78c86eb1a8faa21b369bcd33207cc90d64ae9df"
+        }
+      ]
+    },
+    "parakeet": {
+      "download_manager": "YappYapp pinned Hugging Face downloader; FluidAudio is forced offline and only loads verified local caches for inference",
+      "license_policy": "Verify Hugging Face model-card license metadata and NVIDIA upstream terms before public distribution or model bundling.",
+      "integrity": "YappYapp fetches the recursive tree and model files from fixed https://huggingface.co URLs at an exact pinned revision, never honors environment-controlled registry origins or attaches ambient Hugging Face credentials, rejects unsafe relative paths, verifies declared sizes plus LFS SHA-256 or Git blob SHA-1 for the complete selected cache, and writes an owner-only .yappyapp-integrity-v1.json manifest before activation. Recording and FluidAudio loading require that verified cache; FluidAudio networking remains disabled even when YappYapp downloads are allowed.",
+      "repositories": [
+        {
+          "variant": "ultra",
+          "repo": "FluidInference/parakeet-ultra-coreml",
+          "revision": "95eaa59a39d4394f047a4dc5cce480388a60d1b6"
+        },
+        {
+          "variant": "v3",
+          "repo": "FluidInference/parakeet-tdt-0.6b-v3-coreml",
+          "revision": "aed02740059203c4a87495924f685de3722ae9ce"
+        },
+        {
+          "variant": "v2",
+          "repo": "FluidInference/parakeet-tdt-0.6b-v2-coreml",
+          "revision": "ee09c569f73759e6d44c9bd16766f477b2b36d39"
+        },
+        {
+          "variant": "tdtCtc110m",
+          "repo": "FluidInference/parakeet-tdt-ctc-110m-coreml",
+          "revision": "9bc92ead6e8f17eca92a869fd578ae76842b82ba"
+        },
+        {
+          "variant": "tdtJa",
+          "repo": "FluidInference/parakeet-0.6b-ja-coreml",
+          "revision": "2952296ff1da4a6d6a7aec545e226367db80c612"
+        }
+      ]
+    },
+    "llm_cleanup": {
+      "repo": "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+      "source": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+      "revision": "91cad51170dc346986eccefdc2dd33a9da36ead9",
+      "filename": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      "sha1": "bcc53a11a5d12ff5679bc46da24da1c9f5065e26",
+      "license": "Apache-2.0",
+      "integrity": "YappYapp downloads the pinned revision and verifies SHA-1 before activation."
+    },
+    "translation": {
+      "license_policy": "Apache-2.0 per the LICENSE.txt in each repository, checked 2026-10-18. No non-commercial or Gemma-terms models.",
+      "integrity": "YappYapp downloads the pinned revision and verifies the Hugging Face LFS SHA-256 before activation.",
+      "runtime": "Bundled llama.cpp llama-completion (same runtime as cleanup); verified loading and translating with the pinned llama.cpp on 2026-10-18.",
+      "models": [
+        {
+          "id": "hy-mt2-1.8b",
+          "repo": "tencent/Hy-MT2-1.8B-GGUF",
+          "source": "https://huggingface.co/tencent/Hy-MT2-1.8B-GGUF",
+          "revision": "a0c709d9fac510f2c807aa3af52872340dc37a4a",
+          "filename": "Hy-MT2-1.8B-Q4_K_M.gguf",
+          "size": 1133080448,
+          "sha256": "dc5f44fcf1fa496ee7ad725982c0c8c553a4de00259b53af84c4b89fb0c06699",
+          "license": "Apache-2.0"
+        },
+        {
+          "id": "hy-mt2-7b",
+          "repo": "tencent/Hy-MT2-7B-GGUF",
+          "source": "https://huggingface.co/tencent/Hy-MT2-7B-GGUF",
+          "revision": "ab8472660ac61fac25f1af43fac2599d52a8a775",
+          "filename": "Hy-MT2-7B-Q4_K_M.gguf",
+          "size": 4624648896,
+          "sha256": "9f96256500f3fc1ab4d64336b58f52a949a95ad7516b0c229476eef782f9f77b",
+          "license": "Apache-2.0"
+        }
+      ]
+    },
+    "qwen3_asr": {
+      "license_policy": "Apache-2.0 per the upstream Qwen/Qwen3-ASR-0.6B and Qwen/Qwen3-ASR-1.7B model cards, checked 2026-10-18. The ggml-org GGUF conversions carry no license field of their own and name those models as their base_model.",
+      "integrity": "YappYapp downloads both files of a model (language model and audio projector) from the pinned revision and verifies each Hugging Face LFS SHA-256 before activation.",
+      "runtime": "Bundled llama.cpp llama-server (warm, with --mmproj) and llama-mtmd-cli (one-shot), same pinned build as cleanup; the qwen3a audio projector is part of this release. Verified transcribing English, French, German, Japanese, Chinese and Korean on 2026-10-18.",
+      "models": [
+        {
+          "id": "qwen3asr-0.6b",
+          "repo": "ggml-org/Qwen3-ASR-0.6B-GGUF",
+          "source": "https://huggingface.co/ggml-org/Qwen3-ASR-0.6B-GGUF",
+          "base_model": "Qwen/Qwen3-ASR-0.6B",
+          "revision": "928ab958557df9aa2ef1c93e0e83c7ad0933fae2",
+          "license": "Apache-2.0",
+          "files": [
+            {
+              "filename": "Qwen3-ASR-0.6B-Q8_0.gguf",
+              "size": 804749248,
+              "sha256": "bca259818b50ca7c4c05e9bdb35a5dc04fa039653a6d6f3f0f331f96f6aa1971"
+            },
+            {
+              "filename": "mmproj-Qwen3-ASR-0.6B-Q8_0.gguf",
+              "size": 214392480,
+              "sha256": "41a342b5e4c514e968cb756de6cd1b7be39eff43c44c57a2ef5fc6522e36603d"
+            }
+          ]
+        },
+        {
+          "id": "qwen3asr-1.7b",
+          "repo": "ggml-org/Qwen3-ASR-1.7B-GGUF",
+          "source": "https://huggingface.co/ggml-org/Qwen3-ASR-1.7B-GGUF",
+          "base_model": "Qwen/Qwen3-ASR-1.7B",
+          "revision": "36a678687ba7d07a74ca70ccb0e36902e005fb80",
+          "license": "Apache-2.0",
+          "files": [
+            {
+              "filename": "Qwen3-ASR-1.7B-Q8_0.gguf",
+              "size": 2165034944,
+              "sha256": "58e22d0532d4eacaf034cfac17a6fed159f37c41390c710186783be439d1fc57"
+            },
+            {
+              "filename": "mmproj-Qwen3-ASR-1.7B-Q8_0.gguf",
+              "size": 355709344,
+              "sha256": "46c1d533af3f354ceb37ce855dbceff7da7fa7cf1e6a523df3b13440bd164c0d"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "huggingface_model_cards": {
+    "checked_at": "2026-07-15",
+    "api_base": "https://huggingface.co/api/models",
+    "models": [
+      {
+        "repo": "ggerganov/whisper.cpp",
+        "expected_license": "mit",
+        "revision": "5359861c739e955e79d9a303bcbc70fb988958b1",
+        "expected_gated": false,
+        "expected_private": false,
+        "url": "https://huggingface.co/ggerganov/whisper.cpp"
+      },
+      {
+        "repo": "FluidInference/parakeet-ultra-coreml",
+        "expected_license": "cc-by-4.0",
+        "revision": "95eaa59a39d4394f047a4dc5cce480388a60d1b6",
+        "expected_gated": false,
+        "expected_private": false,
+        "url": "https://huggingface.co/FluidInference/parakeet-ultra-coreml"
+      },
+      {
+        "repo": "FluidInference/parakeet-tdt-0.6b-v3-coreml",
+        "expected_license": "cc-by-4.0",
+        "revision": "aed02740059203c4a87495924f685de3722ae9ce",
+        "expected_gated": false,
+        "expected_private": false,
+        "url": "https://huggingface.co/FluidInference/parakeet-tdt-0.6b-v3-coreml"
+      },
+      {
+        "repo": "FluidInference/parakeet-tdt-0.6b-v2-coreml",
+        "expected_license": "cc-by-4.0",
+        "revision": "ee09c569f73759e6d44c9bd16766f477b2b36d39",
+        "expected_gated": false,
+        "expected_private": false,
+        "url": "https://huggingface.co/FluidInference/parakeet-tdt-0.6b-v2-coreml"
+      },
+      {
+        "repo": "FluidInference/parakeet-tdt-ctc-110m-coreml",
+        "expected_license": "cc-by-4.0",
+        "revision": "9bc92ead6e8f17eca92a869fd578ae76842b82ba",
+        "expected_gated": false,
+        "expected_private": false,
+        "url": "https://huggingface.co/FluidInference/parakeet-tdt-ctc-110m-coreml"
+      },
+      {
+        "repo": "FluidInference/parakeet-0.6b-ja-coreml",
+        "expected_license": "cc-by-4.0",
+        "revision": "2952296ff1da4a6d6a7aec545e226367db80c612",
+        "expected_gated": false,
+        "expected_private": false,
+        "url": "https://huggingface.co/FluidInference/parakeet-0.6b-ja-coreml"
+      },
+      {
+        "repo": "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+        "expected_license": "apache-2.0",
+        "revision": "91cad51170dc346986eccefdc2dd33a9da36ead9",
+        "expected_gated": false,
+        "expected_private": false,
+        "url": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF"
+      },
+      {
+        "repo": "tencent/Hy-MT2-1.8B-GGUF",
+        "expected_license": "apache-2.0",
+        "revision": "a0c709d9fac510f2c807aa3af52872340dc37a4a",
+        "expected_gated": false,
+        "expected_private": false,
+        "url": "https://huggingface.co/tencent/Hy-MT2-1.8B-GGUF"
+      },
+      {
+        "repo": "tencent/Hy-MT2-7B-GGUF",
+        "expected_license": "apache-2.0",
+        "revision": "ab8472660ac61fac25f1af43fac2599d52a8a775",
+        "expected_gated": false,
+        "expected_private": false,
+        "url": "https://huggingface.co/tencent/Hy-MT2-7B-GGUF"
+      },
+      {
+        "repo": "ggml-org/Qwen3-ASR-0.6B-GGUF",
+        "expected_license": "",
+        "license_from": "Qwen/Qwen3-ASR-0.6B",
+        "revision": "928ab958557df9aa2ef1c93e0e83c7ad0933fae2",
+        "expected_gated": false,
+        "expected_private": false,
+        "url": "https://huggingface.co/ggml-org/Qwen3-ASR-0.6B-GGUF"
+      },
+      {
+        "repo": "ggml-org/Qwen3-ASR-1.7B-GGUF",
+        "expected_license": "",
+        "license_from": "Qwen/Qwen3-ASR-1.7B",
+        "revision": "36a678687ba7d07a74ca70ccb0e36902e005fb80",
+        "expected_gated": false,
+        "expected_private": false,
+        "url": "https://huggingface.co/ggml-org/Qwen3-ASR-1.7B-GGUF"
+      },
+      {
+        "repo": "Qwen/Qwen3-ASR-0.6B",
+        "expected_license": "apache-2.0",
+        "revision": "5eb144179a02acc5e5ba31e748d22b0cf3e303b0",
+        "expected_gated": false,
+        "expected_private": false,
+        "url": "https://huggingface.co/Qwen/Qwen3-ASR-0.6B"
+      },
+      {
+        "repo": "Qwen/Qwen3-ASR-1.7B",
+        "expected_license": "apache-2.0",
+        "revision": "7278e1e70fe206f11671096ffdd38061171dd6e5",
+        "expected_gated": false,
+        "expected_private": false,
+        "url": "https://huggingface.co/Qwen/Qwen3-ASR-1.7B"
+      }
+    ]
+  }
+}
