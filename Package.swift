@@ -46,7 +46,7 @@ let package = Package(
         .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.8.0"),
         // Test-only dependency. The standalone package lets `swift test` run
         // with Command Line Tools, where Apple's XCTest module is unavailable.
-        .package(url: "https://github.com/swiftlang/swift-testing.git", exact: "6.3.2")
+        .package(url: "https://github.com/swiftlang/swift-testing.git", exact: "6.4.1")
     ],
     targets: [
         .executableTarget(
