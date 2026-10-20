@@ -32,7 +32,7 @@ jobs:
           echo "Building against $SDKROOT"
 
       - name: Cache SwiftPM build products
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .build
           key: ${{ runner.os }}-swift-${{ hashFiles('Package.resolved', 'Package.swift') }}
