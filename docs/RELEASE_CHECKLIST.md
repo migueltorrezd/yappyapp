@@ -19,9 +19,9 @@ steps.
 - Bundle identifier verified for the release channel.
 - Fresh support-directory setup verified under `~/Library/Application Support/YappYapp`.
 - Signing path chosen: ad-hoc, local self-signed development, or Developer ID notarized release.
-- If this release is not notarized, the release notes include the ready
-  Gatekeeper / first-open block from the Release Notes Template below and link to
-  [docs/GATEKEEPER.md](GATEKEEPER.md), and the install docs point to the same
+- If this release is not notarized, the release notes include the
+  Gatekeeper / first-open steps from [docs/GATEKEEPER.md](GATEKEEPER.md) in
+  place of the notarized line under Install, and the install docs point to the same
   version-correct first-open steps (macOS 15 and macOS 26 use System Settings ->
   Privacy & Security -> Open Anyway; macOS 14 uses right-click -> Open). If the
   release should link to an online guide, set `REPO_URL` when running
@@ -296,13 +296,14 @@ keep publishing while the rename redirect still serves the old feed.
 
 ### Privacy And Permissions
 
-<!-- GATEKEEPER-DOC-M2 ready first-open copy for non-notarized releases -->
-First open on a non-notarized build (one time):
-- macOS 15 Sequoia / macOS 26 Tahoe: open the app, click Done, then System
-  Settings > Privacy & Security > Open Anyway > authenticate > Open.
-- macOS 14 Sonoma: right-click the app > Open > Open.
-Why: this YappYapp build is distributed outside the Mac App Store and is not
-yet notarized. Full guide: docs/GATEKEEPER.md
+### Install
+
+Download `YappYapp-<version>.dmg`, check its SHA-256 against the value at the
+end of these notes, and drag YappYapp to Applications. It is signed with a
+Developer ID and notarized, so it opens with a double-click. Homebrew:
+`brew install --cask migueltorrezd/tap/yappyapp`.
+
+Setup guide: https://yappyapp.app/en/how-to-use
 
 ### Models And Runtime
 
