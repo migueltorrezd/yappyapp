@@ -36,7 +36,7 @@ let package = Package(
         // FluidAudio's TTS and ITN use (tools 6.2 is needed for the opt-out).
         .package(
             url: "https://github.com/FluidInference/FluidAudio.git",
-            .upToNextMinor(from: "0.17.7"),
+            .upToNextMinor(from: "0.18.2"),
             traits: []
         ),
         // Sparkle powers "Check for updates" + the opt-out auto-check. Binary
