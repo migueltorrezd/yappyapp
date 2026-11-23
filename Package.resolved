@@ -1,5 +1,5 @@
 {
-  "originHash" : "a9c479fc9f9cc4fc5f2125775cc76053e2ce329144eff7d554aae983613bf757",
+  "originHash" : "d55a7a2e37d6a5b39264538d9513cc700295102094e3314d1e15ad0974f58d54",
   "pins" : [
     {
       "identity" : "fluidaudio",
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-testing.git",
       "state" : {
-        "revision" : "804dc4530ef36664e31aaef3aaab1d7dc89a6cc4",
-        "version" : "6.4.1"
+        "revision" : "ba0861fb203553caf2e21dd0479d2c0169307021",
+        "version" : "6.4.3"
       }
     }
   ],
